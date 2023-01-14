@@ -1,35 +1,27 @@
 import { nanoid } from 'nanoid';
-// import { useState } from 'react';
-import { useLocalStorage } from 'hooks/useLocalStorage.hooks';
 import { PhonebookForm } from './PhonebookForm/PhonebookForm';
 import { Section } from './Section/Section';
 import { Filter } from './Filter/Filter';
 import { ContactsList } from './ContactsList/ContactsList';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFilter } from 'redux/selectors';
+import { getContacts, getFilter } from 'redux/selectors';
 import { changeFilter } from 'redux/filterSlice';
-
-const LOCAL_STORAGE_KEY = 'contacts';
+import { addContact, deleteContact } from 'redux/contactsSlice';
+import { useMemo } from 'react';
+import debounce from 'lodash.debounce';
 
 export const App = () => {
-  const [contacts, setContacts] = useLocalStorage(LOCAL_STORAGE_KEY, []);
-  // const [filter, setFilter] = useState('');
-
   const dispatch = useDispatch();
 
   const filter = useSelector(getFilter);
+  const contacts = useSelector(getContacts);
 
   const handleDelete = id => {
-    const newArr = contacts.filter(el => {
-      return el.id !== id;
-    });
-    return setContacts(newArr);
+    dispatch(deleteContact(id));
   };
 
   const handleFilterInput = ({ target: { value } }) => {
-    // console.log(value);
     dispatch(changeFilter(value));
-    // setFilter(value);
   };
 
   const handleSubmit = newUser => {
@@ -44,12 +36,12 @@ export const App = () => {
       alert(`${user.name} is already in contacts`);
       return null;
     }
-    setContacts(prevState => {
-      return [...prevState, user];
-    });
+
+    dispatch(addContact(user));
+
     return 'New contact has already in your list';
   };
-
+  console.log(contacts);
   const filterContacts = () => {
     return [...contacts].filter(el => {
       return el.name.toLowerCase().includes(filter.toLowerCase().trim());
