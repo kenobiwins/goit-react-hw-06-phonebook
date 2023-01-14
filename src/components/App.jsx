@@ -7,8 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getContacts, getFilter } from 'redux/selectors';
 import { changeFilter } from 'redux/filterSlice';
 import { addContact, deleteContact } from 'redux/contactsSlice';
-import { useMemo } from 'react';
-import debounce from 'lodash.debounce';
 
 export const App = () => {
   const dispatch = useDispatch();
@@ -41,7 +39,7 @@ export const App = () => {
 
     return 'New contact has already in your list';
   };
-  console.log(contacts);
+
   const filterContacts = () => {
     return [...contacts].filter(el => {
       return el.name.toLowerCase().includes(filter.toLowerCase().trim());
