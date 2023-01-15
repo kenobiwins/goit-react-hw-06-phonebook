@@ -1,12 +1,20 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Form, Label, Input } from './PhonebookForm.styled';
-import { Button } from 'BaseStyles/BaseStyles.styled';
 import { memo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
+import { addContact } from 'redux/contactsSlice';
+import { nanoid } from 'nanoid';
 
-export const PhonebookForm = memo(({ onSubmit }) => {
+import { Button } from 'BaseStyles/BaseStyles.styled';
+
+export const PhonebookForm = memo(() => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const dispatch = useDispatch();
+
+  const contacts = useSelector(getContacts);
 
   const handleInput = ({ target: { name, value } }) => {
     switch (name) {
@@ -19,9 +27,27 @@ export const PhonebookForm = memo(({ onSubmit }) => {
     }
   };
 
+  const handleSubmit = newUser => {
+    const user = {
+      id: nanoid(),
+      ...newUser,
+    };
+
+    const usersInclude = contacts.some(el => el.name === user.name);
+
+    if (usersInclude) {
+      alert(`${user.name} is already in contacts`);
+      return null;
+    }
+
+    dispatch(addContact(user));
+
+    return 'New contact has already in your list';
+  };
+
   const submitForm = e => {
     e.preventDefault();
-    const newUser = onSubmit({ name, number });
+    const newUser = handleSubmit({ name, number });
 
     if (newUser === null) {
       return;
@@ -60,7 +86,3 @@ export const PhonebookForm = memo(({ onSubmit }) => {
     </Form>
   );
 });
-
-PhonebookForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
